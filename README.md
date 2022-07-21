@@ -121,7 +121,8 @@ pip install -r requirements.txt
 
 ## Applications
 
-The project contains two application entry points. These are the `app/simulator.py` and the `app/post_processing.py`.
+The project contains three application entry points:
+`app/simulator.py`, `app/post_processing.py` and `app/export.py`.
 The operational details about these applications are documented separately.
 
 ## Usage of the simulator application
@@ -176,6 +177,18 @@ python -m app.post_processing input.pickle pp_control.yaml output.pickle
 * `input.pickle` The result file of a simulator run.
 * `pp_control.yaml` is the declaration of post processing function chain.
 * `output.pickle` is the output file for post processed results
+
+## Usage of the data export application
+
+The data export application can export data from simulation or post-processing results
+to other formats, such as optimizer input files.
+To use it, run
+```
+python -m app.export input.pickle export_control.yaml
+```
+
+* `input.pickle` is the a simulation or post-processing result file.
+* `export_control.yaml` is the export declaration file.
 
 ## Testing
 

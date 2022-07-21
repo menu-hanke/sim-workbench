@@ -1,0 +1,15 @@
+format: J
+
+cvariables:
+  - simulation_state.year
+  - simulation_state.site_type_category
+  - simulation_state.land_use_category
+  - simulation_state.soil_peatland_category
+
+xvariables:
+  # pines and other coniferous
+  - trees.stems_per_ha[(trees.species==1)|(trees.species==8)]
+  # spruces
+  - trees.stems_per_ha[trees.species==2]
+  # deciduous - note: you can also refer to species codes by name (forest-data-model enum coding)
+  - trees.stems_per_ha[(trees.species>=SILVER_BIRCH)&(trees.species!=OTHER_CONIFEROUS)]
