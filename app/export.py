@@ -2,6 +2,8 @@ import builtins
 from functools import cached_property
 import sys
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+
+from forestdatamodel.conversion.internal2mela import TreeSpecies
 from app.app_io import export_cli_arguments
 from app.file_io import pickle_reader, simulation_declaration_from_yaml_file
 from sim.core_types import OperationPayload
@@ -77,6 +79,10 @@ class Globals:
     def __getattr__(self, name: str) -> Any:
         try:
             return getattr(self._payload, name)
+        except AttributeError:
+            pass
+        try:
+            return getattr(TreeSpecies, name)
         except AttributeError:
             pass
         return getattr(builtins, name)
