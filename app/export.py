@@ -20,6 +20,8 @@ def compile(expr: str, globals: Dict) -> CollectFn:
 
 
 def _collect_fns(decl: Decl, globals: Dict, out: List[CollectFn]):
+    """Turn a declaration into a list of collector functions."""
+
     if isinstance(decl, str):
         out.append(compile(decl, globals))
     elif isinstance(decl, dict):
@@ -33,6 +35,8 @@ def _collect_fns(decl: Decl, globals: Dict, out: List[CollectFn]):
 
 
 class CollectFns(dict):
+    """A list of collector functions that share globals. This class also acts as the global
+    namespace dict, so any key set on this dict will be visible to the collector functions."""
 
     def __init__(self, decl: Decl):
         self._fns: List[CollectFn] = []
@@ -43,6 +47,7 @@ class CollectFns(dict):
         return getattr(self._globals, name)
 
     def __call__(self, payload: OperationPayload) -> Iterator[float]:
+        """Apply collector functions on a payload. This returns an iterator of the collected values."""
         self._globals = Globals(payload)
         for f in self._fns:
             v = f()
@@ -52,15 +57,22 @@ class CollectFns(dict):
 
     @cached_property
     def names(self) -> List[Optional[str]]:
+        """List of column names."""
         return [getattr(f, "name", None) for f in self._fns]
 
 
 class CollectibleNDArray(np.ndarray):
+    """Numpy array but `float(x)` gives `sum(x)`.
+    This is used so that array references (eg. any tree variables) in the collection declaration
+    give the sum, like in MELA forest report."""
+
     def __float__(self) -> float:
         return float(sum(self))
 
 
 class LazyDataFrame:
+    """Helper class to turn a list of objects into a data-frame-like object where
+    each column is obtained by reading the corresponding attribute from the objects."""
 
     def __init__(self, xs: List):
         self._xs = xs
@@ -72,6 +84,8 @@ class LazyDataFrame:
 
 
 class Globals:
+    """Helper class to be used as the global namespace for collector functions.
+    Any property you add here will be visible as a variable."""
 
     def __init__(self, payload: OperationPayload):
         self._payload = payload
@@ -97,6 +111,8 @@ class Globals:
 
 
 def export_j(decl: Dict, data: Dict[str, List[OperationPayload]]):
+    """Write J cdata and xdata files."""
+
     xfns = CollectFns(decl.get("xvariables", []))
     cfns = CollectFns(decl.get("cvariables", []))
     xdaout = open(decl.get("xda", "data.xda"), "w")
